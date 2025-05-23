@@ -25,8 +25,8 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 1.4;
-    public static final double kMaxAngularSpeed = 0.8 * Math.PI; // radians per second
+    public static final double kMaxSpeedMetersPerSecond = 0.4;
+    public static final double kMaxAngularSpeed = 0.2 * Math.PI; // radians per second
 
     // Demo speeds and feeds:
     public static final double kDirectionSlewRate = 1.5; // radians per second
@@ -50,16 +50,18 @@ public final class Constants {
     public static final double kBackLeftChassisAngularOffset = Math.PI;
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
-    // SPARK Flex CAN IDs
-    public static final int kFrontLeftDrivingCanId = 1;
-    public static final int kRearLeftDrivingCanId = 4;
-    public static final int kFrontRightDrivingCanId = 16;
-    public static final int kRearRightDrivingCanId = 19;
+    public static final int kSparkFlexCanBus = 4;
 
-    public static final int kFrontLeftTurningCanId = 2;
-    public static final int kRearLeftTurningCanId = 3;
-    public static final int kFrontRightTurningCanId = 17;
-    public static final int kRearRightTurningCanId = 18;
+    // SPARK Flex CAN IDs
+    public static final int kFrontLeftDrivingCanId = 17;
+    public static final int kRearLeftDrivingCanId = 20;
+    public static final int kFrontRightDrivingCanId = 4;
+    public static final int kRearRightDrivingCanId = 1;
+
+    public static final int kFrontLeftTurningCanId = 18;
+    public static final int kRearLeftTurningCanId = 19;
+    public static final int kFrontRightTurningCanId = 3;
+    public static final int kRearRightTurningCanId = 2;
 
     public static final boolean kGyroReversed = false;
   }
@@ -68,7 +70,7 @@ public final class Constants {
     // The MAXSwerve module can be configured with one of three pinion gears: 12T,
     // 13T, or 14T. This changes the drive speed of the module (a pinion gear with
     // more teeth will result in a robot that drives faster).
-    public static final int kDrivingMotorPinionTeeth = 14;
+    public static final int kDrivingMotorPinionTeeth = 12;
 
     // Calculations required for driving motor conversion factors and feed forward
     public static final double kDrivingMotorFreeSpeedRps = NeoMotorConstants.kFreeSpeedRpm / 60;
