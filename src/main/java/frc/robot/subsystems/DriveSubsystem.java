@@ -116,9 +116,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     var chassisSpeeds = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
     if (fieldRelative) {
-      chassisSpeeds.toRobotRelative(m_gyro.getHeading());
+      chassisSpeeds = chassisSpeeds.toRobotRelative(m_gyro.getHeading());
     }
-    chassisSpeeds.discretize(0.02);
+    chassisSpeeds = chassisSpeeds.discretize(0.02);
     var swerveModuleStates = DriveConstants.kDriveKinematics.toWheelSpeeds(chassisSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
