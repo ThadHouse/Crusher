@@ -4,18 +4,19 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.OnboardIMU;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.OnboardIMU.MountOrientation;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -42,33 +43,36 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightTurningCanId,
       DriveConstants.kBackRightChassisAngularOffset);
 
-  private final GoBildaPinpoint m_gyro = new GoBildaPinpoint(Port.kPort0);
-
-  // Slew rate filter variables for tuning lateral acceleration
-  public Pose2d resetPosition = new Pose2d(new Translation2d(0, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0));
+  private final OnboardIMU m_onboardImu = new OnboardIMU(MountOrientation.kFlat);
 
   // Odometry class for tracking the robot's pose
-  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
+  private final SwerveDriveOdometry m_odometry;
+
+  // Create a new DriveSubsystem
+  public DriveSubsystem() {
+    m_pinpoint.resetHeading();
+    m_onboardImu.resetYaw();
+    m_frontLeft.resetEncoders();
+    m_frontRight.resetEncoders();
+    m_rearLeft.resetEncoders();
+    m_rearRight.resetEncoders();
+    m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
-      m_gyro.getHeading(),
+      m_onboardImu.getRotation2d(),
       new SwerveModulePosition[] {
           m_frontLeft.getPosition(),
           m_frontRight.getPosition(),
           m_rearLeft.getPosition(),
           m_rearRight.getPosition()
       });
-
-  // Create a new DriveSubsystem
-  public DriveSubsystem() {
-    m_gyro.resetHeading();
   }
 
   // Update odometry in the periodic block
   @Override
   public void periodic() {
-    m_gyro.update();
+    m_pinpoint.update();
     m_odometry.update(
-        m_gyro.getHeading(),
+        m_onboardImu.getRotation2d(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -84,13 +88,8 @@ public class DriveSubsystem extends SubsystemBase {
 
   // Reset the odometry to the specified pose
   public void resetOdometry(Pose2d pose) {
-    m_gyro.resetHeading();
-    m_frontLeft.resetEncoders();
-    m_frontRight.resetEncoders();
-    m_rearLeft.resetEncoders();
-    m_rearRight.resetEncoders();
     m_odometry.resetPosition(
-        m_gyro.getHeading(),
+        m_onboardImu.getRotation2d(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -117,12 +116,12 @@ public class DriveSubsystem extends SubsystemBase {
 
     var chassisSpeeds = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
     if (fieldRelative) {
-      chassisSpeeds = chassisSpeeds.toRobotRelative(m_gyro.getHeading());
+      chassisSpeeds = chassisSpeeds.toRobotRelative(m_odometry.getPose().getRotation());
     }
     chassisSpeeds = chassisSpeeds.discretize(0.02);
     var swerveModuleStates = DriveConstants.kDriveKinematics.toWheelSpeeds(chassisSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+        swerveModuleStates, DriveConstants.kMaxWheelSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_rearLeft.setDesiredState(swerveModuleStates[2]);
@@ -147,26 +146,22 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.setDesiredState(desiredStates[3]);
   }
 
-  // Zero the encoders on the swerve modules
-  public void resetEncoders() {
-    m_frontLeft.resetEncoders();
-    m_rearLeft.resetEncoders();
-    m_frontRight.resetEncoders();
-    m_rearRight.resetEncoders();
-  }
-
-  /** Zeroes the heading of the robot. */
-  public void zeroHeading() {
-    m_gyro.resetHeading();
-  }
-
   /**
    * Returns the heading of the robot.
    *
-   * @return the robot's heading in degrees, from -180 to 180
+   * @return the robot's heading in radians
    */
   public double getHeading() {
-    return m_gyro.getHeading().getDegrees();
+    return m_odometry.getPose().getRotation().getRadians();
+  }
+
+  /**
+   * Returns the heading of the robot from the IMU directly.
+   * 
+   * @return the imu's heading in radians
+   */
+  public double getRawHeading() {
+    return m_onboardImu.getYawRadians();
   }
 
   /**
@@ -175,6 +170,16 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The turn rate of the robot, in degrees per second
    */
   public double getTurnRate() {
-    return m_gyro.getHeadingVelocity().in(DegreesPerSecond) * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    return m_onboardImu.getGyroRateZ();
+  }
+
+  private final GoBildaPinpoint m_pinpoint = new GoBildaPinpoint(Port.kPort0);
+
+  public double getPinpointTurnRate() {
+    return m_pinpoint.getHeadingVelocity().in(RadiansPerSecond);
+  }
+
+  public double getPinpointHeading() {
+    return m_pinpoint.getHeading().getRadians();
   }
 }
