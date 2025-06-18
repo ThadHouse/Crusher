@@ -19,7 +19,6 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 
 import frc.robot.Configs;
-import frc.robot.Constants.DriveConstants;
 
 @Logged
 public class MAXSwerveModule {
@@ -41,9 +40,9 @@ public class MAXSwerveModule {
    * MAXSwerve Module built with NEOs, SPARKS MAX, and a Through Bore
    * Encoder.
    */
-  public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset) {
-    m_drivingSpark = new SparkFlex(DriveConstants.kSparkFlexCanBus, drivingCANId, MotorType.kBrushless);
-    m_turningSpark = new SparkFlex(DriveConstants.kSparkFlexCanBus, turningCANId, MotorType.kBrushless);
+  public MAXSwerveModule(int canBus, int drivingCANId, int turningCANId, double chassisAngularOffset) {
+    m_drivingSpark = new SparkFlex(canBus, drivingCANId, MotorType.kBrushless);
+    m_turningSpark = new SparkFlex(canBus, turningCANId, MotorType.kBrushless);
 
     m_drivingEncoder = m_drivingSpark.getEncoder();
     m_turningEncoder = m_turningSpark.getAbsoluteEncoder();

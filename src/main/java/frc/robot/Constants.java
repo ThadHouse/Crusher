@@ -46,7 +46,8 @@ public final class Constants {
     public static final double kBackLeftChassisAngularOffset = Math.PI;
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
-    public static final int kSparkFlexCanBus = 0;
+    public static final int kLeftSparkFlexCanBus = 3;
+    public static final int kRightSparkFlexCanBus = 4;
 
     // SPARK Flex CAN IDs
     public static final int kFrontLeftDrivingCanId = 11;
