@@ -1,21 +1,21 @@
-package frc.robot.subsystems;
+package first.robot.subsystems;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Millimeters;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.MetersPerSecond;
+import static org.wpilib.units.Units.Millimeters;
+import static org.wpilib.units.Units.RadiansPerSecond;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
 
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.I2C;
+import org.wpilib.units.Units;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Distance;
+import org.wpilib.units.measure.LinearVelocity;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.hardware.bus.I2C;
 
 public class GoBildaPinpoint {
     private int deviceStatus = 0;
@@ -118,7 +118,7 @@ public class GoBildaPinpoint {
         buffer.putInt(i);
 
         if (m_i2c.writeBulk(buffer, 5)) {
-            DriverStation.reportError("Failed to write register", false);
+            DriverStationErrors.reportError("Failed to write register", false);
         }
     }
 
@@ -133,7 +133,7 @@ public class GoBildaPinpoint {
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
         if (m_i2c.read(reg.bVal, 4, buffer)) {
-            DriverStation.reportError("Failed to read register", false);
+            DriverStationErrors.reportError("Failed to read register", false);
             return 0;
         }
         return buffer.getInt();
@@ -151,7 +151,7 @@ public class GoBildaPinpoint {
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
         if (m_i2c.read(reg.bVal, 4, buffer)) {
-            DriverStation.reportError("Failed to read register", false);
+            DriverStationErrors.reportError("Failed to read register", false);
             return 0;
         }
 
@@ -171,7 +171,7 @@ public class GoBildaPinpoint {
         buffer.putFloat(f);
 
         if (m_i2c.writeBulk(buffer, 5)) {
-            DriverStation.reportError("Failed to write register", false);
+            DriverStationErrors.reportError("Failed to write register", false);
         }
     }
 
@@ -244,7 +244,7 @@ public class GoBildaPinpoint {
             ByteBuffer buffer = ByteBuffer.allocateDirect(4);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             if (m_i2c.read(Register.H_ORIENTATION.bVal, 4, buffer)) {
-                DriverStation.reportError("Failed to read heading register", false);
+                DriverStationErrors.reportError("Failed to read heading register", false);
                 return;
             }
             hOrientation = buffer.getFloat();

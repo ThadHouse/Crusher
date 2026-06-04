@@ -2,26 +2,40 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package first.robot.subsystems;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.RadiansPerSecond;
 
-import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.OnboardIMU;
-import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj.OnboardIMU.MountOrientation;
-import frc.robot.Constants.DriveConstants;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+// import static edu.wpi.first.units.Units.RadiansPerSecond;
 
-@Logged
-public class DriveSubsystem extends SubsystemBase {
+import org.wpilib.command3.Mechanism;
+import org.wpilib.command3.Scheduler;
+import org.wpilib.hardware.bus.I2C.Port;
+import org.wpilib.hardware.imu.OnboardIMU;
+import org.wpilib.hardware.imu.OnboardIMU.MountOrientation;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.kinematics.SwerveDriveKinematics;
+import org.wpilib.math.kinematics.SwerveDriveOdometry;
+import org.wpilib.math.kinematics.SwerveModulePosition;
+
+import first.robot.Constants.DriveConstants;
+
+// import edu.wpi.first.epilogue.Logged;
+// import edu.wpi.first.math.geometry.Pose2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
+// import edu.wpi.first.math.kinematics.ChassisSpeeds;
+// import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+// import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+// import edu.wpi.first.math.kinematics.SwerveModulePosition;
+// import edu.wpi.first.math.kinematics.SwerveModuleState;
+// import edu.wpi.first.wpilibj.OnboardIMU;
+// import edu.wpi.first.wpilibj.I2C.Port;
+// import edu.wpi.first.wpilibj.OnboardIMU.MountOrientation;
+// import edu.wpi.first.wpilibj2.command.SubsystemBase;
+// import first.robot.Constants.DriveConstants;
+
+// @Logged
+public class DriveSubsystem extends Mechanism {
   // Create MAXSwerveModules
   private final MAXSwerveModule m_frontLeft = new MAXSwerveModule(
       DriveConstants.kLeftSparkFlexCanBus,
@@ -47,7 +61,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightTurningCanId,
       DriveConstants.kBackRightChassisAngularOffset);
 
-  private final OnboardIMU m_onboardImu = new OnboardIMU(MountOrientation.kFlat);
+  private final OnboardIMU m_onboardImu = new OnboardIMU(MountOrientation.FLAT);
 
   // Odometry class for tracking the robot's pose
   private final SwerveDriveOdometry m_odometry;
@@ -69,10 +83,11 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearLeft.getPosition(),
           m_rearRight.getPosition()
       });
+
+    Scheduler.getDefault().addPeriodic(this::periodic);
   }
 
   // Update odometry in the periodic block
-  @Override
   public void periodic() {
     m_pinpoint.update();
     m_odometry.update(
@@ -161,7 +176,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   /**
    * Returns the heading of the robot from the IMU directly.
-   * 
+   *
    * @return the imu's heading in radians
    */
   public double getRawHeading() {
@@ -177,7 +192,7 @@ public class DriveSubsystem extends SubsystemBase {
     return m_onboardImu.getGyroRateZ();
   }
 
-  private final GoBildaPinpoint m_pinpoint = new GoBildaPinpoint(Port.kPort0);
+  private final GoBildaPinpoint m_pinpoint = new GoBildaPinpoint(Port.PORT_0);
 
   public double getPinpointTurnRate() {
     return m_pinpoint.getHeadingVelocity().in(RadiansPerSecond);

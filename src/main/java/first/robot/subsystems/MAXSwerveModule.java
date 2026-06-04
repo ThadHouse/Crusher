@@ -2,28 +2,25 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package first.robot.subsystems;
 
-import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.kinematics.SwerveModulePosition;
 
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 
-import frc.robot.Configs;
+import first.robot.Configs;
 
-@Logged
 public class MAXSwerveModule {
-  private final SparkFlex m_drivingSpark;
-  private final SparkFlex m_turningSpark;
+  private final SparkMax m_drivingSpark;
+  private final SparkMax m_turningSpark;
 
   private final RelativeEncoder m_drivingEncoder;
   private final AbsoluteEncoder m_turningEncoder;
@@ -40,9 +37,9 @@ public class MAXSwerveModule {
    * MAXSwerve Module built with NEOs, SPARKS MAX, and a Through Bore
    * Encoder.
    */
-  public MAXSwerveModule(int canBus, int drivingCANId, int turningCANId, double chassisAngularOffset) {
-    m_drivingSpark = new SparkFlex(canBus, drivingCANId, MotorType.kBrushless);
-    m_turningSpark = new SparkFlex(canBus, turningCANId, MotorType.kBrushless);
+  public MAXSwerveModule(int busId, int drivingCANId, int turningCANId, double chassisAngularOffset) {
+    m_drivingSpark = new SparkMax(busId, drivingCANId, MotorType.kBrushless);
+    m_turningSpark = new SparkMax(busId, turningCANId, MotorType.kBrushless);
 
     m_drivingEncoder = m_drivingSpark.getEncoder();
     m_turningEncoder = m_turningSpark.getAbsoluteEncoder();
@@ -59,7 +56,7 @@ public class MAXSwerveModule {
         PersistMode.kPersistParameters);
 
     m_chassisAngularOffset = chassisAngularOffset;
-    m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());
+    m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition().get(0.0));
     m_drivingEncoder.setPosition(0);
   }
 
@@ -84,8 +81,8 @@ public class MAXSwerveModule {
     // Apply chassis angular offset to the encoder position to get the position
     // relative to the chassis.
     return new SwerveModulePosition(
-        m_drivingEncoder.getPosition(),
-        new Rotation2d(m_turningEncoder.getPosition() - m_chassisAngularOffset));
+        m_drivingEncoder.getPosition().get(0.0),
+        new Rotation2d(m_turningEncoder.getPosition().get(0.0) - m_chassisAngularOffset));
   }
 
   /**
@@ -96,15 +93,15 @@ public class MAXSwerveModule {
   public void setDesiredState(SwerveModuleState desiredState) {
     // Apply chassis angular offset to the desired state.
     SwerveModuleState correctedDesiredState = new SwerveModuleState();
-    correctedDesiredState.speed = desiredState.speed;
+    correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
     correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(m_chassisAngularOffset));
 
     // Optimize the reference state to avoid spinning further than 90 degrees.
-    correctedDesiredState.optimize(new Rotation2d(m_turningEncoder.getPosition()));
+    correctedDesiredState.optimize(new Rotation2d(m_turningEncoder.getPosition().get(0.0)));
 
     // Command driving and turning SPARKS towards their respective setpoints.
-    m_drivingClosedLoopController.setReference(correctedDesiredState.speed, ControlType.kVelocity);
-    m_turningClosedLoopController.setReference(correctedDesiredState.angle.getRadians(), ControlType.kPosition);
+    m_drivingClosedLoopController.setSetpoint(correctedDesiredState.speedMetersPerSecond, ControlType.kVelocity);
+    m_turningClosedLoopController.setSetpoint(correctedDesiredState.angle.getRadians(), ControlType.kPosition);
 
     m_desiredState = desiredState;
   }
