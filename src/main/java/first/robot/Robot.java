@@ -7,6 +7,10 @@ package first.robot;
 import org.wpilib.driverstation.DefaultUserControls;
 import org.wpilib.driverstation.UserControlsInstance;
 import org.wpilib.framework.OpModeRobot;
+import org.wpilib.hardware.bus.I2C.Port;
+
+import first.robot.subsystems.DriveSubsystem;
+import first.robot.subsystems.GoBildaPinpoint;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -17,4 +21,5 @@ import org.wpilib.framework.OpModeRobot;
 // @Logged
 @UserControlsInstance(DefaultUserControls.class)
 public class Robot extends OpModeRobot {
+    public final DriveSubsystem driveSubsystem = new DriveSubsystem();
 }

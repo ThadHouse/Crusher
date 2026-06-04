@@ -6,6 +6,8 @@ package first.robot.subsystems;
 
 import static org.wpilib.units.Units.RadiansPerSecond;
 
+import org.wpilib.command3.Command;
+
 // import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import org.wpilib.command3.Mechanism;
@@ -72,6 +74,9 @@ public class DriveSubsystem extends Mechanism {
           m_rearLeft.getPosition(),
           m_rearRight.getPosition()
       });
+
+
+    setDefaultCommand(this.runRepeatedly(() -> setX()).withPriority(Command.LOWEST_PRIORITY).named("Default Shooter"));
 
     Scheduler.getDefault().addPeriodic(this::periodic);
   }
@@ -179,6 +184,10 @@ public class DriveSubsystem extends Mechanism {
    */
   public double getTurnRate() {
     return m_onboardImu.getGyroRateZ();
+  }
+
+  public void zeroHeading() {
+    m_onboardImu.resetYaw();
   }
 
   private final GoBildaPinpoint m_pinpoint = new GoBildaPinpoint(Port.PORT_0);
