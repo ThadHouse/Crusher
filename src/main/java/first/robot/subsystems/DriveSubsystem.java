@@ -14,25 +14,14 @@ import org.wpilib.hardware.bus.I2C.Port;
 import org.wpilib.hardware.imu.OnboardIMU;
 import org.wpilib.hardware.imu.OnboardIMU.MountOrientation;
 import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.math.kinematics.SwerveDriveKinematics;
 import org.wpilib.math.kinematics.SwerveDriveOdometry;
 import org.wpilib.math.kinematics.SwerveModulePosition;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
 
 import first.robot.Constants.DriveConstants;
-
-// import edu.wpi.first.epilogue.Logged;
-// import edu.wpi.first.math.geometry.Pose2d;
-// import edu.wpi.first.math.geometry.Rotation2d;
-// import edu.wpi.first.math.kinematics.ChassisSpeeds;
-// import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-// import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-// import edu.wpi.first.math.kinematics.SwerveModulePosition;
-// import edu.wpi.first.math.kinematics.SwerveModuleState;
-// import edu.wpi.first.wpilibj.OnboardIMU;
-// import edu.wpi.first.wpilibj.I2C.Port;
-// import edu.wpi.first.wpilibj.OnboardIMU.MountOrientation;
-// import edu.wpi.first.wpilibj2.command.SubsystemBase;
-// import first.robot.Constants.DriveConstants;
 
 // @Logged
 public class DriveSubsystem extends Mechanism {
@@ -133,36 +122,36 @@ public class DriveSubsystem extends Mechanism {
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
-    var chassisSpeeds = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
+    var chassisSpeeds = new ChassisVelocities(xSpeedDelivered, ySpeedDelivered, rotDelivered);
     if (fieldRelative) {
       chassisSpeeds = chassisSpeeds.toRobotRelative(m_odometry.getPose().getRotation());
     }
     chassisSpeeds = chassisSpeeds.discretize(0.02);
-    var swerveModuleStates = DriveConstants.kDriveKinematics.toWheelSpeeds(chassisSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(
+    var swerveModuleStates = DriveConstants.kDriveKinematics.toWheelVelocities(chassisSpeeds);
+    var newStates = SwerveDriveKinematics.desaturateWheelVelocities(
         swerveModuleStates, DriveConstants.kMaxWheelSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    m_rearRight.setDesiredState(swerveModuleStates[3]);
+    m_frontLeft.setDesiredState(newStates[0]);
+    m_frontRight.setDesiredState(newStates[1]);
+    m_rearLeft.setDesiredState(newStates[2]);
+    m_rearRight.setDesiredState(newStates[3]);
   }
 
   // Set the wheels into an X formation to prevent movement
   public void setX() {
-    m_frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-    m_frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    m_rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    m_rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+    m_frontLeft.setDesiredState(new SwerveModuleVelocity(0, Rotation2d.fromDegrees(45)));
+    m_frontRight.setDesiredState(new SwerveModuleVelocity(0, Rotation2d.fromDegrees(-45)));
+    m_rearLeft.setDesiredState(new SwerveModuleVelocity(0, Rotation2d.fromDegrees(-45)));
+    m_rearRight.setDesiredState(new SwerveModuleVelocity(0, Rotation2d.fromDegrees(45)));
   }
 
   // Set the swerve module states
-  public void setModuleStates(SwerveModuleState[] desiredStates) {
-    SwerveDriveKinematics.desaturateWheelSpeeds(
+  public void setModuleStates(SwerveModuleVelocity[] desiredStates) {
+    var newStates = SwerveDriveKinematics.desaturateWheelVelocities(
         desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(desiredStates[0]);
-    m_frontRight.setDesiredState(desiredStates[1]);
-    m_rearLeft.setDesiredState(desiredStates[2]);
-    m_rearRight.setDesiredState(desiredStates[3]);
+    m_frontLeft.setDesiredState(newStates[0]);
+    m_frontRight.setDesiredState(newStates[1]);
+    m_rearLeft.setDesiredState(newStates[2]);
+    m_rearRight.setDesiredState(newStates[3]);
   }
 
   /**

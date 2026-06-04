@@ -1,4 +1,4 @@
-package frc.utils;
+package first.utils;
 
 public class SwerveUtils {
 
@@ -35,7 +35,7 @@ public class SwerveUtils {
 
         double stepDirection = Math.signum(_target - _current);
         double difference = Math.abs(_current - _target);
-        
+
         if (difference <= _stepsize) {
             return _target;
         }
