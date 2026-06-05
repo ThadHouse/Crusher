@@ -4,13 +4,11 @@
 
 package first.robot;
 
-import org.wpilib.driverstation.DefaultUserControls;
+import org.wpilib.command3.Scheduler;
 import org.wpilib.driverstation.UserControlsInstance;
+import org.wpilib.epilogue.Logged;
 import org.wpilib.framework.OpModeRobot;
-import org.wpilib.hardware.bus.I2C.Port;
-
 import first.robot.subsystems.DriveSubsystem;
-import first.robot.subsystems.GoBildaPinpoint;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -18,8 +16,17 @@ import first.robot.subsystems.GoBildaPinpoint;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-// @Logged
-@UserControlsInstance(DefaultUserControls.class)
+@Logged
+@UserControlsInstance(CustomUserControls.class)
 public class Robot extends OpModeRobot {
     public final DriveSubsystem driveSubsystem = new DriveSubsystem();
+
+    public Robot() {
+        System.out.println("Robot constructor called");
+    }
+
+    @Override
+    public void robotPeriodic() {
+        Scheduler.getDefault().run();
+    }
 }

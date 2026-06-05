@@ -12,6 +12,7 @@ import org.wpilib.command3.Command;
 
 import org.wpilib.command3.Mechanism;
 import org.wpilib.command3.Scheduler;
+import org.wpilib.epilogue.Logged;
 import org.wpilib.hardware.bus.I2C.Port;
 import org.wpilib.hardware.imu.OnboardIMU;
 import org.wpilib.hardware.imu.OnboardIMU.MountOrientation;
@@ -22,10 +23,11 @@ import org.wpilib.math.kinematics.SwerveDriveKinematics;
 import org.wpilib.math.kinematics.SwerveDriveOdometry;
 import org.wpilib.math.kinematics.SwerveModulePosition;
 import org.wpilib.math.kinematics.SwerveModuleVelocity;
+import org.wpilib.smartdashboard.SmartDashboard;
 
 import first.robot.Constants.DriveConstants;
 
-// @Logged
+@Logged
 public class DriveSubsystem extends Mechanism {
   // Create MAXSwerveModules
   private final MAXSwerveModule m_frontLeft = new MAXSwerveModule(
@@ -141,8 +143,11 @@ public class DriveSubsystem extends Mechanism {
     m_rearRight.setDesiredState(newStates[3]);
   }
 
+  int count = 0;
+
   // Set the wheels into an X formation to prevent movement
   public void setX() {
+    SmartDashboard.putNumber("SetXCount", count++);
     m_frontLeft.setDesiredState(new SwerveModuleVelocity(0, Rotation2d.fromDegrees(45)));
     m_frontRight.setDesiredState(new SwerveModuleVelocity(0, Rotation2d.fromDegrees(-45)));
     m_rearLeft.setDesiredState(new SwerveModuleVelocity(0, Rotation2d.fromDegrees(-45)));

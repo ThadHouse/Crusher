@@ -26,9 +26,9 @@ public final class Constants {
 
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 0.6;
-    public static final double kMaxAngularSpeed = 1; // radians per second
-    public static final double kMaxWheelSpeedMetersPerSecond = 1.0;
+    public static final double kMaxSpeedMetersPerSecond = 2;
+    public static final double kMaxAngularSpeed = 6; // radians per second
+    public static final double kMaxWheelSpeedMetersPerSecond = 3.0;
 
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(15.5);
@@ -47,8 +47,8 @@ public final class Constants {
     public static final double kBackLeftChassisAngularOffset = Math.PI;
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
-    public static final int kLeftSparkFlexCanBus = 3;
-    public static final int kRightSparkFlexCanBus = 4;
+    public static final int kLeftSparkFlexCanBus = 4;
+    public static final int kRightSparkFlexCanBus = 3;
 
     // SPARK Flex CAN IDs
     public static final int kFrontLeftDrivingCanId = 11;
