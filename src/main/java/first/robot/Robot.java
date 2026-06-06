@@ -20,6 +20,7 @@ import first.robot.subsystems.DriveSubsystem;
 @Logged
 @UserControlsInstance(CustomUserControls.class)
 public class Robot extends OpModeRobot {
+    @Logged
     public final DriveSubsystem driveSubsystem = new DriveSubsystem();
 
     @Override

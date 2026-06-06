@@ -1,7 +1,6 @@
 package first.robot;
 
 import org.wpilib.command3.Command;
-import org.wpilib.command3.Scheduler;
 import org.wpilib.command3.button.CommandGamepad;
 import org.wpilib.opmode.PeriodicOpMode;
 import org.wpilib.opmode.Teleop;
@@ -19,6 +18,7 @@ public class DriveOpMode extends PeriodicOpMode {
     }
 
     private Command oldDefaultCommand;
+    private boolean fieldOriented = true;
 
     @Override
     public void start() {
@@ -33,6 +33,13 @@ public class DriveOpMode extends PeriodicOpMode {
         if (gamepad.getHID().getRightBumperButtonPressed()) {
             driveSubsystem.zeroHeading();
         }
+
+        if (gamepad.getHID().getNorthFaceButtonPressed()) {
+            fieldOriented = true;
+        }
+        if (gamepad.getHID().getWestFaceButtonPressed()) {
+            fieldOriented = false;
+        }
     }
 
     private void doDrive() {
@@ -40,7 +47,7 @@ public class DriveOpMode extends PeriodicOpMode {
         double strafe = -gamepad.getLeftX();
         double rotation = -gamepad.getRightX();
 
-        driveSubsystem.drive(forward, strafe, rotation, false);
+        driveSubsystem.drive(forward, strafe, rotation, fieldOriented);
     }
 
     @Override

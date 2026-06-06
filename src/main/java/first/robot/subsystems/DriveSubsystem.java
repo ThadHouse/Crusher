@@ -117,17 +117,47 @@ public class DriveSubsystem extends Mechanism {
   /**
    * Method to drive the robot using joystick info.
    *
-   * @param xSpeed        Speed of the robot in the x direction (forward).
-   * @param ySpeed        Speed of the robot in the y direction (sideways).
-   * @param rot           Angular rate of the robot.
+   * @param xSpeed        Normalized speed of the robot in the x direction (forward), from -1 to 1.
+   * @param ySpeed        Normalized speed of the robot in the y direction (sideways), from -1 to 1.
+   * @param rot           Normalized angular rate of the robot, from -1 to 1.
    * @param fieldRelative Whether the provided x and y speeds are relative to the
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-    // Convert the commanded speeds into the correct units for the drivetrain
-    double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-    double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-    double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
+    driveMetersPerSecond(
+        xSpeed * DriveConstants.kMaxSpeedMetersPerSecond,
+        ySpeed * DriveConstants.kMaxSpeedMetersPerSecond,
+        rot * DriveConstants.kMaxAngularSpeed,
+        fieldRelative);
+  }
+
+  /**
+   * Method to drive the robot using physical units.
+   *
+   * @param xSpeedMetersPerSecond Speed of the robot in the x direction (forward), in meters per
+   *                              second.
+   * @param ySpeedMetersPerSecond Speed of the robot in the y direction (sideways), in meters per
+   *                              second.
+   * @param rotRadiansPerSecond   Angular rate of the robot, in radians per second.
+   * @param fieldRelative         Whether the provided x and y speeds are relative to the field.
+   */
+  public void driveMetersPerSecond(
+      double xSpeedMetersPerSecond,
+      double ySpeedMetersPerSecond,
+      double rotRadiansPerSecond,
+      boolean fieldRelative) {
+    double xSpeedDelivered = clamp(
+        xSpeedMetersPerSecond,
+        -DriveConstants.kMaxSpeedMetersPerSecond,
+        DriveConstants.kMaxSpeedMetersPerSecond);
+    double ySpeedDelivered = clamp(
+        ySpeedMetersPerSecond,
+        -DriveConstants.kMaxSpeedMetersPerSecond,
+        DriveConstants.kMaxSpeedMetersPerSecond);
+    double rotDelivered = clamp(
+        rotRadiansPerSecond,
+        -DriveConstants.kMaxAngularSpeed,
+        DriveConstants.kMaxAngularSpeed);
 
     var chassisSpeeds = new ChassisVelocities(xSpeedDelivered, ySpeedDelivered, rotDelivered);
     if (fieldRelative) {
@@ -141,6 +171,10 @@ public class DriveSubsystem extends Mechanism {
     m_frontRight.setDesiredState(newStates[1]);
     m_rearLeft.setDesiredState(newStates[2]);
     m_rearRight.setDesiredState(newStates[3]);
+  }
+
+  private static double clamp(double value, double min, double max) {
+    return Math.max(min, Math.min(max, value));
   }
 
   int count = 0;
