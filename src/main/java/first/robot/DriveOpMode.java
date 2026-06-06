@@ -26,7 +26,13 @@ public class DriveOpMode extends PeriodicOpMode {
         var defaultCommand = driveSubsystem.runRepeatedly(this::doDrive).withPriority(0).named("Default Drive");
         driveSubsystem.setDefaultCommand(defaultCommand);
         gamepad.eastFace().whileTrue(driveSubsystem.runRepeatedly(() -> driveSubsystem.setX()).withPriority(1).named("Set X"));
-        //gamepad.leftBumper().risingEdge().onTrue(driveSubsystem.runRepeatedly(() -> driveSubsystem.zeroHeading()).withPriority(2).named("Zero Heading"));
+    }
+
+    @Override
+    public void periodic() {
+        if (gamepad.getHID().getRightBumperButtonPressed()) {
+            driveSubsystem.zeroHeading();
+        }
     }
 
     private void doDrive() {

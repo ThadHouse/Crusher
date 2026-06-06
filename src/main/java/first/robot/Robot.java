@@ -6,6 +6,7 @@ package first.robot;
 
 import org.wpilib.command3.Scheduler;
 import org.wpilib.driverstation.UserControlsInstance;
+import org.wpilib.epilogue.Epilogue;
 import org.wpilib.epilogue.Logged;
 import org.wpilib.framework.OpModeRobot;
 import first.robot.subsystems.DriveSubsystem;
@@ -21,12 +22,12 @@ import first.robot.subsystems.DriveSubsystem;
 public class Robot extends OpModeRobot {
     public final DriveSubsystem driveSubsystem = new DriveSubsystem();
 
-    public Robot() {
-        System.out.println("Robot constructor called");
-    }
-
     @Override
     public void robotPeriodic() {
         Scheduler.getDefault().run();
+            long start = System.nanoTime();
+    var config = Epilogue.getConfig();
+    Epilogue.first_robot_RobotLogger.tryUpdate(config.backend.getNested(config.root), this, config.errorHandler);
+    config.backend.log("Epilogue/Stats/Last Run", (System.nanoTime() - start) / 1e6);
     }
 }
